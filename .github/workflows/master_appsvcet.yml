@@ -33,11 +33,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Setup SwashBuckle .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-           dotnet-version: ${{ env.SWASHBUCKLE_DOTNET_CORE_VERSION }}
-        
       - name: Restore Dependencies
         run: dotnet restore
 
@@ -46,15 +41,6 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-
-      - name: Install Swashbuckle CLI .NET Global Tool
-        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version ${{ env.SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION }}
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      
-      - name: Generate Open API Specification Document
-        run: swagger tofile --output "${{ env.API_IMPORT_SPECIFICATION_PATH }}" "${{ env.API_IMPORT_DLL }}" "${{ env.API_IMPORT_VERSION }}"
-
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
