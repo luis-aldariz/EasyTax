@@ -19,6 +19,7 @@ env:
   AZURE_APIM_SERVICENAME: EasyTaxServiceApi
   AZURE_APIM_API_ID: EasyTaxService
   AZURE_APIM_APPSERVICEURL: https://appsvcet-cbazb7fshcatfvfj.canadacentral-01.azurewebsites.net
+  SWASHBUCKLE_DOTNET_CORE_VERSION: 3.1.x
 
 jobs:
   build:
@@ -32,6 +33,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Setup SwashBuckle .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+           dotnet-version: ${{ env.SWASHBUCKLE_DOTNET_CORE_VERSION }}
+        
       - name: Restore Dependencies
         run: dotnet restore
 
