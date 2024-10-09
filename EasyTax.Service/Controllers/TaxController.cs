@@ -20,14 +20,14 @@ namespace EasyTax.Service.Controllers
         }
 
         [HttpGet(Name = "GetTaxHistory")]
-        public async Task<ActionResult> GetTaxHistory()
+        public async Task<IEnumerable<TaxHistory>> GetTaxHistory()
         {
             IEnumerable<TaxHistory> taxHistory = await _context.TaxHistory.ToListAsync();
-            return Ok(taxHistory);
+            return taxHistory;
         }
 
         [HttpPost(Name = "CreateTax")]
-        public async Task<ActionResult> CreateTax([FromBody] CreateTaxRequest request)
+        public async Task CreateTax([FromBody] CreateTaxRequest request)
         {
             await _context.TaxHistory.AddAsync(new TaxHistory 
             { 
@@ -39,7 +39,6 @@ namespace EasyTax.Service.Controllers
                 CreatedOn = DateTime.Now
             });
             await _context.SaveChangesAsync();
-            return Ok();
         }
     }
 }
