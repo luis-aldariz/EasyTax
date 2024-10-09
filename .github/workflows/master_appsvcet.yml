@@ -8,6 +8,17 @@ on:
     branches:
       - master
   workflow_dispatch:
+env:
+  SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION: 5.6.3
+  WORKING_DIRECTORY: EasyTax.Service
+  API_IMPORT_SPECIFICATION_PATH: EasyTax.Service\publish\swagger.json
+  API_IMPORT_DLL: EasyTax.Service\bin\Release\net8.0\EasyTax.Service.dll
+  API_IMPORT_VERSION: v1
+  AZURE_APIM_RESOURCE_PATH: /api
+  AZURE_APIM_RESOURCEGROUP: easytax_rg
+  AZURE_APIM_SERVICENAME: EasyTaxServiceApi
+  AZURE_APIM_API_ID: EasyTaxService
+  AZURE_APIM_APPSERVICEURL: https://appsvcet-cbazb7fshcatfvfj.canadacentral-01.azurewebsites.net
 
 jobs:
   build:
