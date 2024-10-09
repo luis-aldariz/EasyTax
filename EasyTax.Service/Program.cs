@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TaxContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ProjectContext")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TaxContext")));
 
 var app = builder.Build();
 
