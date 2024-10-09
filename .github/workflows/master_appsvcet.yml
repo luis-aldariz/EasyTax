@@ -17,9 +17,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -28,10 +31,23 @@ jobs:
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
+      - name: Install EntityFrameworkCore Tools
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install dotnet-ef
+          
+      - name: Generate EF Core Migration Script
+        run: dotnet ef migrations script --idempotent --no-build --configuration Release --output ${{env.DOTNET_ROOT}}/sql/sql-script.sql --context EasyTax.Service.Data.TaxContext --project ${{ github.workspace }}/EasyTax.Service/EasyTax.Service.csproj
+    
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ddl-updates
+          path: ${{env.DOTNET_ROOT}}/sql/sql-script.sql
 
   deploy:
     runs-on: windows-latest
@@ -44,12 +60,10 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
+        uses: actions/download-artifact@v3
       
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_169EAE3D626C4ACA8FBF1B7D0A325EAE }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CFA35BA35EAA4DA4BE58DE2DD01D46FA }}
@@ -57,9 +71,17 @@ jobs:
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           app-name: 'appsvcet'
           slot-name: 'Production'
-          package: .
+          package: ./.net-app/
+
+      - name: Azure SQL Deploy
+        uses: Azure/sql-action@v2
+        with:
+          # The connection string, including authentication information, for the Azure SQL Server database.
+          connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+          # Path to the file used for this action. Supported file types are .sql, .dacpac, or .sqlproj.
+          path: ./ddl-updates/sql-script.sql
           
